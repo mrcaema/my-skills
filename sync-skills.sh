@@ -5,7 +5,8 @@
 #
 #   ~/.agents/skills/<name>   canonical source (this git repo)
 #   ~/.claude/skills/<name>   relative symlink  -> ../../.agents/skills/<name>
-#   ~/.gemini/skills/<name>   real copy (Antigravity does not follow symlinks reliably)
+#   <antigravity>/<name>      real copy (Antigravity does not follow symlinks reliably)
+#                             ~/.gemini/config/skills on newer builds, else ~/.gemini/skills
 #
 # Idempotent. Portable: Linux (GNU) and macOS (BSD userland, bash 3.2).
 # Run it after every `git pull`, and after editing any skill.
@@ -15,7 +16,18 @@ set -eu
 AGENTS_DIR="${AGENTS_DIR:-$HOME/.agents}"
 SKILLS_DIR="$AGENTS_DIR/skills"
 CLAUDE_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
-GEMINI_DIR="${GEMINI_SKILLS_DIR:-$HOME/.gemini/skills}"
+# Antigravity's global skills directory: newer builds read ~/.gemini/config/skills
+# (see its own migrate-workflows builtin), older ones ~/.gemini/skills. Prefer an
+# existing ~/.gemini/skills so machines already set up that way keep working.
+if [ -n "${GEMINI_SKILLS_DIR:-}" ]; then
+  GEMINI_DIR="$GEMINI_SKILLS_DIR"
+elif [ -d "$HOME/.gemini/skills" ]; then
+  GEMINI_DIR="$HOME/.gemini/skills"
+elif [ -d "$HOME/.gemini/config" ]; then
+  GEMINI_DIR="$HOME/.gemini/config/skills"
+else
+  GEMINI_DIR="$HOME/.gemini/skills"
+fi
 EXCLUDE_FILE="$AGENTS_DIR/gemini-exclude.txt"
 
 DRY_RUN=0

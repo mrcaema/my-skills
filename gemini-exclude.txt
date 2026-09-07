@@ -1,5 +1,5 @@
-# Skills NOT mirrored into ~/.gemini/skills (Antigravity).
+# Skills NOT mirrored into the Antigravity skills directory.
 # One skill directory name per line; blank lines and # comments ignored.
-# These are Claude Code-specific and do nothing under Antigravity.
-git-guardrails-claude-code
-claude-handoff
+# Currently empty: every skill is mirrored to both Claude Code and Antigravity.
+# (git-guardrails-claude-code and claude-handoff are Claude Code-specific and do
+#  nothing under Antigravity, but are mirrored anyway so both agents see the same set.)

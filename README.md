@@ -7,7 +7,8 @@ Canonical, machine-independent home for the agent skills shared by **Claude Code
 ```
 ~/.agents/skills/<name>/SKILL.md   canonical source — edit here, nowhere else
 ~/.claude/skills/<name>            relative symlink -> ../../.agents/skills/<name>
-~/.gemini/skills/<name>            real copy (Antigravity does not follow symlinks reliably)
+~/.gemini/config/skills/<name>     real copy (Antigravity does not follow symlinks reliably)
+                                   older builds read ~/.gemini/skills; the script detects which
 ```
 
 Repo: <https://github.com/mrcaema/my-skills>
@@ -47,8 +48,10 @@ The script is written for bash 3.2 and BSD userland, so **stock macOS needs noth
 installed** — no Homebrew bash, no GNU coreutils. It uses `rsync` when present and falls
 back to `cp -R`.
 
-If Antigravity on that machine reads skills from somewhere other than `~/.gemini/skills`,
-point the script at the right place instead of editing it:
+The script picks the Antigravity skills directory itself: an existing `~/.gemini/skills`
+wins (so machines already set up that way keep working), otherwise `~/.gemini/config/skills`
+when a `~/.gemini/config` exists — which is where current Antigravity builds read from, per
+its own `migrate-workflows` builtin. To force a different location:
 
 ```bash
 GEMINI_SKILLS_DIR="$HOME/some/other/path" ~/.agents/sync-skills.sh
@@ -69,8 +72,8 @@ Claude Code needs no re-sync after an edit — it reads through the symlink. The
 copy is a snapshot, so **`./sync-skills.sh` after every edit** is what keeps the two sides
 from drifting apart.
 
-`gemini-exclude.txt` lists skills deliberately not mirrored to Antigravity (Claude
-Code-specific ones). Everything else is mirrored.
+`gemini-exclude.txt` lists skills deliberately not mirrored to Antigravity. It is currently
+empty — every skill goes to both agents.
 
 ## House rules
 
