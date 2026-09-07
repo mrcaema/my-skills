@@ -199,6 +199,13 @@ copy_tree() {
 
 if [ "$DO_GEMINI" -eq 1 ]; then
   echo "Antigravity: $GEMINI_DIR"
+  # Both candidates present means one of them is a leftover nothing reads. Say so —
+  # the mirror otherwise succeeds loudly into the wrong directory.
+  if [ -z "${GEMINI_SKILLS_DIR:-}" ] &&
+     [ -d "$HOME/.gemini/skills" ] && [ -d "$HOME/.gemini/config/skills" ]; then
+    echo "  ! both ~/.gemini/skills and ~/.gemini/config/skills exist — using the former."
+    echo "  ! check which one your Antigravity build reads (see README) and delete the other."
+  fi
   run mkdir -p "$GEMINI_DIR"
   copied=0; excluded=0
   while IFS= read -r name; do

@@ -48,10 +48,38 @@ The script is written for bash 3.2 and BSD userland, so **stock macOS needs noth
 installed** — no Homebrew bash, no GNU coreutils. It uses `rsync` when present and falls
 back to `cp -R`.
 
-The script picks the Antigravity skills directory itself: an existing `~/.gemini/skills`
-wins (so machines already set up that way keep working), otherwise `~/.gemini/config/skills`
-when a `~/.gemini/config` exists — which is where current Antigravity builds read from, per
-its own `migrate-workflows` builtin. To force a different location:
+## Antigravity's skills directory
+
+Antigravity has moved this location, so it differs **by build, not by operating system** —
+do not assume one path for Linux and another for macOS. Current builds read
+`~/.gemini/config/skills`; older ones read `~/.gemini/skills`. The script resolves it:
+
+1. `GEMINI_SKILLS_DIR` if set — always wins.
+2. An existing `~/.gemini/skills`, so a machine already synced that way keeps working.
+3. `~/.gemini/config/skills` when a `~/.gemini/config` directory exists.
+
+Every run prints the directory it chose (`Antigravity: …`), and warns if both candidates
+exist — that means one is a leftover nothing reads.
+
+To find out which one your build wants, ask Antigravity's own bundled `migrate-workflows`
+skill, which documents the global skills path:
+
+```bash
+grep -o "\.gemini/[a-z/]*skills" ~/.gemini/*/builtin/skills/migrate-workflows/SKILL.md | sort -u
+ls -d ~/.gemini/skills ~/.gemini/config/skills 2>/dev/null   # which ones actually exist
+```
+
+**Upgrading a machine that was synced to the old path.** Rule 2 keeps choosing the stale
+`~/.gemini/skills`, and it does so silently — the mirror reports success into a directory
+Antigravity no longer reads. Once the grep above says `config/skills`, retire the old copy:
+
+```bash
+rm -rf ~/.gemini/skills
+~/.agents/sync-skills.sh          # now resolves to ~/.gemini/config/skills
+```
+
+Nothing is lost: `~/.agents/skills` is the canonical source and the mirror is only a
+snapshot of it. To force some third location instead:
 
 ```bash
 GEMINI_SKILLS_DIR="$HOME/some/other/path" ~/.agents/sync-skills.sh
